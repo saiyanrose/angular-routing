@@ -14,6 +14,8 @@ import { RouterModule, Routes } from '@angular/router';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 import { AuthGuard } from './auth-guard.service';
 import { AuthService } from './auth.service';
+import { CanDeactivateGuard } from './servers/edit-server/canDeactivateGuard';
+import { ServerResolver } from './servers/server/server-resolver.service';
 
 const appRoutes:Routes=[
   {path:'',component:HomeComponent},
@@ -21,8 +23,8 @@ const appRoutes:Routes=[
     {path:':id/:name',component:UserComponent}
   ]},  
   {path:'servers',canActivate:[AuthGuard],canActivateChild:[AuthGuard], component:ServersComponent,children:[
-    {path:':id',component:ServerComponent},
-    {path:':id/edit',component:EditServerComponent}
+    {path:':id',component:ServerComponent,resolve:{server:ServerResolver}},
+    {path:':id/edit',component:EditServerComponent,canDeactivate:[CanDeactivateGuard]}
   ]},
   {path:'not-found',component:PageNotFoundComponent},
   {path:'**',redirectTo:'/not-found'}  
@@ -40,9 +42,9 @@ const appRoutes:Routes=[
     PageNotFoundComponent
   ],
   imports: [
-    BrowserModule,FormsModule,RouterModule.forRoot(appRoutes)
+    BrowserModule,FormsModule,RouterModule.forRoot(appRoutes,{useHash:true})
   ],
-  providers: [ServerService,AuthGuard,AuthService],
+  providers: [ServerService,AuthGuard,AuthService,CanDeactivateGuard,ServerResolver],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
